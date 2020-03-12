@@ -1,8 +1,6 @@
 # Roda::Proxy
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/roda/proxy`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Roda Proxy is a very simple reverse proxy for Roda. It is designed to proxy APIs, it will not rewrite HTML. 
 
 ## Installation
 
@@ -22,18 +20,71 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Add the plugin to your Roda app and pass it two parameters (one is required, one is optional).
 
-## Development
+```ruby
+require 'roda'
+require 'roda/proxy'
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+class App < Roda
+  plugin :proxy, 
+         to: 'https://my.server.com', 
+         path_prefix: '/my/api/path'
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+The `to:` parameter is required. It should describe the scheme, host and port of the proxy. It should **not** end with a `/`.
 
-## Contributing
+The `path_prefix:` parameter is optional. It defaults to `/`. If you chose to specify it, it **should** start and end with a `/`.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/roda-proxy.
+The plugin provides both an unconditional and a conditional proxy directive.
 
+To invoke the proxy in your routes, see this example:
+
+```ruby
+route do |r|
+  # /my
+  r.on 'my' do
+    # /my/api
+    r.on 'api' do
+      # /my/api/path
+      r.is 'path' do
+        # GET /my/api/path
+        r.get do
+          r.proxy
+        end
+      end
+    end
+  end
+end
+```
+
+The proxy will always be invoked. Headers and body are passed through unmodified in both directions with the exception of `Host` which is rewritten to match the target.
+
+Also provided is a conditional proxy:
+
+```ruby
+route do |r|
+  # /my
+  r.on 'my' do
+    # /my/api
+    r.on 'api' do
+      # /my/api/path
+      r.is 'path' do
+        # GET /my/api/path
+        r.get do
+          r.proxy_when(r.env['HTTP_PROXY'] == 'true', probability: 0.5) do
+            'This request has not been proxied'
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+With `proxy_when` the first optional parameter expects a truthy value or a block / lambda that returns a truthy value. This must be equivalent to `true` for the proxying to occur. The optional probability is a float between 0 and 1 indicating the probability that proxying will happen. Both paramters can be used alone or in isolation.
+
+If and only if proxying does not occur will the block be evaluated and return to Roda for rendering.
 
 ## License
 
