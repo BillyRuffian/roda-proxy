@@ -1,0 +1,3 @@
+require './addressing'
+
+run App
