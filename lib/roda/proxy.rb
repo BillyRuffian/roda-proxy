@@ -37,6 +37,7 @@ class Roda
         def proxy
           method = Faraday.method(env['REQUEST_METHOD'].downcase.to_sym)
           f_response = method.call(_proxy_url) { |req| _proxy_request(req) }
+          pp f_response
           _respond(f_response)
         end
         
@@ -65,11 +66,13 @@ class Roda
         
         def _proxy_url
           @_proxy_url ||= URI(roda_class.opts[:proxy_to])
-                          .then { |uri| uri.path = roda_class.opts[:proxy_path]; uri }
+                          .then { |uri| uri.path = roda_class.opts[:proxy_path]; uri } # prefix
+                          .then { |uri| uri.path += env['PATH_INFO'][1..-1]; uri } # path
                           .then { |uri| uri.query = env['QUERY_STRING']; uri }
         end
         
         def _proxy_headers
+          pp env
           env
             .select { |k, _v| k.start_with? 'HTTP_' }
             .reject { |k, _v| k == 'HTTP_HOST' }
