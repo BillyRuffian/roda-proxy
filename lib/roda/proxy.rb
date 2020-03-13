@@ -71,7 +71,6 @@ class Roda
         end
         
         def _proxy_headers
-          pp env
           env
             .select { |k, _v| k.start_with? 'HTTP_' }
             .reject { |k, _v| k == 'HTTP_HOST' }
