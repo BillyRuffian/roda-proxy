@@ -37,7 +37,6 @@ class Roda
         def proxy
           method = Faraday.method(env['REQUEST_METHOD'].downcase.to_sym)
           f_response = method.call(_proxy_url) { |req| _proxy_request(req) }
-          pp f_response
           _respond(f_response)
         end
         
