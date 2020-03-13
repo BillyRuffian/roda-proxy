@@ -13,13 +13,17 @@ class Roda
       # Respond to the configure method to set the destination when proxying
       # Expects the following options:
       # [to] Required. The scheme and host of the proxy. Should not end with a slash.
-      # [path] Optional. The path to append to the above for proxying.
-      #        Should begin with a +/+. Defaults to +/+.
+      # [path_prefix] Optional. The path to append to the above for proxying.
+      #        The current request path will be prefixed on to this value.
+      #        Should begin and end with a +/+. Defaults to +/+.
+      #        For example, if the path prefix is +/foo/+ and the request received
+      #        by Roda is +GET /postcode/lookup+, The proxied request will be dispatched
+      #        to +GET /home/postcode/lookup+
       # Example:
       #   plugin :proxy, to: 'https://foo.bar', path: '/my/api'
       def self.configure(app, opts = {})
         app.opts[:proxy_to] = opts.fetch(:to, nil) 
-        app.opts[:proxy_path] = opts.fetch(:path, '/')
+        app.opts[:proxy_path] = opts.fetch(:path_prefix, '/')
         
         raise 'Proxy host not set, use "plugin :proxy, to: http://example.com"' unless app.opts[:proxy_to]
       end
@@ -58,6 +62,7 @@ class Roda
         
         private
         
+        
         def _proxy_url
           @_proxy_url ||= URI(roda_class.opts[:proxy_to])
                           .then { |uri| uri.path = roda_class.opts[:proxy_path]; uri }
@@ -73,7 +78,11 @@ class Roda
                .split('_')
                .map(&:capitalize)
                .join('-')
-            end.merge({ 'Host' => "#{_proxy_url.host}:#{_proxy_url.port}" })
+            end
+            .merge({ 
+                     'Host' => "#{_proxy_url.host}:#{_proxy_url.port}",
+                     'Via' => _via_header_string
+                   })
         end
         
         def _proxy_request(req)
@@ -83,7 +92,12 @@ class Roda
         def _respond(proxied_response)
           response.status = proxied_response.status
           proxied_response.headers.each { |k, v| response[k] = v }
+          response['Via'] = _via_header_string
           response.write(proxied_response.body)
+        end
+        
+        def _via_header_string
+          "#{env['SERVER_PROTOCOL']} #{env['SERVER_NAME']}:#{env['SERVER_PORT']}"
         end
       end
     end
