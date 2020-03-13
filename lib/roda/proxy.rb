@@ -54,9 +54,9 @@ class Roda
           shall_proxy = Random.rand(0.0..1.0) <= probability
                     
           if shall_proxy && ( condition.respond_to?(:call) ? condition.call : condition )
-            yield(self)
-          else
             proxy
+          else
+            yield(self)
           end
         end
         
