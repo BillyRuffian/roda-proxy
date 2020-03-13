@@ -8,17 +8,17 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Nigel Brookes-Thomas']
   spec.email         = ['nigel@brookes-thomas.co.uk']
 
-  spec.summary       = 'Proxy service for Roda'
-  spec.description   = 'Roda proxy service'
-  spec.homepage      = 'http://foo.bar'
+  spec.summary       = 'Reverse proxy plugin for Roda'
+  spec.description   = 'A very simple reverse proxy for Roda'
+  spec.homepage      = 'https://github.com/BillyRuffian/roda-proxy'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
 
-  spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+  spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = 'http://foo.bar'
-  spec.metadata['changelog_uri'] = 'http://foo.bar'
+  spec.metadata['source_code_uri'] = 'https://github.com/BillyRuffian/roda-proxy'
+  spec.metadata['changelog_uri'] = 'https://github.com/BillyRuffian/roda-proxy'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
