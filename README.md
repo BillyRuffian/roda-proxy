@@ -58,7 +58,7 @@ route do |r|
 end
 ```
 
-The proxy will always be invoked. Headers and body are passed through unmodified in both directions with the exception of `Host` which is rewritten to match the target.
+The proxy will always be invoked. Headers and body are passed through unmodified in both directions with the exception of `Host` which is rewritten to match the target and `Via` which is created (or appended to if it already exists) to indicate the proxy path.
 
 Also provided is a conditional proxy:
 
