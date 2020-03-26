@@ -58,7 +58,7 @@ route do |r|
 end
 ```
 
-The proxy will always be invoked. Headers and body are passed through unmodified in both directions with the exception of `Host` which is rewritten to match the target.
+The proxy will always be invoked. Headers and body are passed through unmodified in both directions with the exception of `Host` which is rewritten to match the target and `Via` which is created (or appended to if it already exists) to indicate the proxy path.
 
 Also provided is a conditional proxy:
 
@@ -82,7 +82,7 @@ route do |r|
 end
 ```
 
-With `proxy_when` the first optional parameter expects a truthy value or a block / lambda that returns a truthy value. This must be equivalent to `true` for the proxying to occur. The optional probability is a float between 0 and 1 indicating the probability that proxying will happen. Both paramters can be used alone or in isolation.
+With `proxy_when` the first optional parameter expects a truthy value or a block / lambda that returns a truthy value. This must be equivalent to `true` for the proxying to occur. The optional probability is a float between 0 and 1 indicating the probability that proxying will happen. Both parameters can be used alone or in isolation.
 
 If and only if proxying does not occur will the block be evaluated and return to Roda for rendering.
 
