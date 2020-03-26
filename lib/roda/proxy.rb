@@ -37,6 +37,7 @@ class Roda
         def proxy
           method = Faraday.method(env['REQUEST_METHOD'].downcase.to_sym)
           f_response = method.call(_proxy_url) { |req| _proxy_request(req) }
+#           p f_response
           _respond(f_response)
         end
         
@@ -92,7 +93,10 @@ class Roda
         
         def _respond(proxied_response)
           response.status = proxied_response.status
-          proxied_response.headers.each { |k, v| response[k] = v }
+          proxied_response
+            .headers
+            .reject { |k, v| k.downcase == 'transfer-encoding' } 
+            .each { |k, v| response[k] = v }
           response['Via'] = _via_header_string
           response.write(proxied_response.body)
         end
